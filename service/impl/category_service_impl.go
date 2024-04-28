@@ -30,7 +30,6 @@ func NewCategoryService(database *sql.DB, validator *validator.Validate, categor
 func (c *CategoryServiceImpl) Create(ctx context.Context, request request.CategoryCreateRequest) response.CategoryResponse {
 	tx, err := c.Database.Begin()
 	defer helper.CommitOrRollback(tx)
-
 	helper.HelperPanic(err)
 
 	err = c.Validator.Struct(request)
@@ -46,7 +45,7 @@ func (c *CategoryServiceImpl) Create(ctx context.Context, request request.Catego
 
 func (c *CategoryServiceImpl) FindById(ctx context.Context, categoryId int) response.CategoryResponse {
 	tx, err := c.Database.Begin()
-
+	defer helper.CommitOrRollback(tx)
 	helper.HelperPanic(err)
 
 	if categoryId == 0 {
@@ -58,7 +57,7 @@ func (c *CategoryServiceImpl) FindById(ctx context.Context, categoryId int) resp
 
 func (c *CategoryServiceImpl) FindAll(ctx context.Context) []response.CategoryResponse {
 	tx, err := c.Database.Begin()
-
+	defer helper.CommitOrRollback(tx)
 	helper.HelperPanic(err)
 
 	categories := c.CategoryRepository.FindAll(ctx, tx)
@@ -67,6 +66,7 @@ func (c *CategoryServiceImpl) FindAll(ctx context.Context) []response.CategoryRe
 
 func (c *CategoryServiceImpl) Update(ctx context.Context, request request.CategoryUpdateRequest) response.CategoryResponse {
 	tx, err := c.Database.Begin()
+	defer helper.CommitOrRollback(tx)
 	helper.HelperPanic(err)
 
 	err = c.Validator.Struct(request)
@@ -83,6 +83,7 @@ func (c *CategoryServiceImpl) Update(ctx context.Context, request request.Catego
 
 func (c *CategoryServiceImpl) Delete(ctx context.Context, categoryId int) {
 	tx, err := c.Database.Begin()
+	defer helper.CommitOrRollback(tx)
 	helper.HelperPanic(err)
 
 	if categoryId == 0 {

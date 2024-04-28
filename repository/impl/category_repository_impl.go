@@ -28,10 +28,10 @@ func (c *CategoryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, category 
 }
 
 func (c *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, categoryId int) entity.Category {
-	sql := "SELECT id, name FROM categories WHERE id= ?"
+	sql := "SELECT id, name FROM categories WHERE id= $1"
 	category := entity.Category{}
 
-	err := tx.QueryRowContext(ctx, sql, categoryId).Scan(&category)
+	err := tx.QueryRowContext(ctx, sql, categoryId).Scan(&category.Id, &category.Name)
 	helper.HelperPanic(err)
 
 	return category
@@ -58,7 +58,7 @@ func (c *CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []enti
 }
 
 func (c *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, category entity.Category) entity.Category {
-	sql := "UPDATE categories SET name = ? WHERE id = ?"
+	sql := "UPDATE categories SET name = $1 WHERE id = $2"
 
 	foundedCategory := c.FindById(ctx, tx, category.Id)
 	if foundedCategory.Id == 0 && foundedCategory.Name == "" {
@@ -72,7 +72,7 @@ func (c *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, categor
 }
 
 func (c *CategoryRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, categoryId int) {
-	sql := "DELETE FROM categories WHERE id = ?"
+	sql := "DELETE FROM categories WHERE id = $1"
 
 	foundedCategory := c.FindById(ctx, tx, categoryId)
 	if foundedCategory.Id == 0 && foundedCategory.Name == "" {

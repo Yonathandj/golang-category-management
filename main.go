@@ -38,7 +38,7 @@ func main() {
 	r.GET("/categories", categoryController.FindAll)
 	r.GET("/categories/:id", categoryController.FindById)
 	r.POST("/categories", categoryController.Create)
-	r.PUT("/categories/", categoryController.Update)
+	r.PUT("/categories", categoryController.Update)
 	r.DELETE("/categories/:id", categoryController.Delete)
 
 	server := http.Server{

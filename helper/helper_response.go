@@ -15,7 +15,7 @@ func ToCategoryResponse(category entity.Category) response.CategoryResponse {
 func ToCategoryResponses(categories []entity.Category) []response.CategoryResponse {
 	var categoriesResponse []response.CategoryResponse
 	for _, v := range categories {
-		_ = append(categoriesResponse, response.CategoryResponse{CategoryId: v.Id, CategoryName: v.Name})
+		categoriesResponse = append(categoriesResponse, response.CategoryResponse{CategoryId: v.Id, CategoryName: v.Name})
 	}
 	return categoriesResponse
 }
