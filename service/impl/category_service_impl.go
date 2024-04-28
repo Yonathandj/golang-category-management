@@ -3,12 +3,14 @@ package impl
 import (
 	"context"
 	"database/sql"
-	"github.com/go-playground/validator/v10"
 	"golang-category-management/helper"
 	"golang-category-management/model/entity"
 	"golang-category-management/model/request"
 	"golang-category-management/model/response"
 	"golang-category-management/repository"
+	"golang-category-management/service"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type CategoryServiceImpl struct {
@@ -17,8 +19,17 @@ type CategoryServiceImpl struct {
 	CategoryRepository repository.CategoryRepository
 }
 
+func NewCategoryService(database *sql.DB, validator *validator.Validate, categoryRepository repository.CategoryRepository) service.CategoryService {
+	return &CategoryServiceImpl{
+		Database:           database,
+		Validator:          validator,
+		CategoryRepository: categoryRepository,
+	}
+}
+
 func (c *CategoryServiceImpl) Create(ctx context.Context, request request.CategoryCreateRequest) response.CategoryResponse {
 	tx, err := c.Database.Begin()
+
 	helper.HelperPanic(err)
 
 	err = c.Validator.Struct(request)
@@ -28,11 +39,14 @@ func (c *CategoryServiceImpl) Create(ctx context.Context, request request.Catego
 		Name: request.Name,
 	}
 	category = c.CategoryRepository.Save(ctx, tx, category)
+	defer helper.CommitOrRollback(tx)
+
 	return helper.ToCategoryResponse(category)
 }
 
 func (c *CategoryServiceImpl) FindById(ctx context.Context, categoryId int) response.CategoryResponse {
 	tx, err := c.Database.Begin()
+
 	helper.HelperPanic(err)
 
 	if categoryId == 0 {
@@ -42,8 +56,9 @@ func (c *CategoryServiceImpl) FindById(ctx context.Context, categoryId int) resp
 	return helper.ToCategoryResponse(category)
 }
 
-func (c *CategoryServiceImpl) findAll(ctx context.Context) []response.CategoryResponse {
+func (c *CategoryServiceImpl) FindAll(ctx context.Context) []response.CategoryResponse {
 	tx, err := c.Database.Begin()
+
 	helper.HelperPanic(err)
 
 	categories := c.CategoryRepository.FindAll(ctx, tx)

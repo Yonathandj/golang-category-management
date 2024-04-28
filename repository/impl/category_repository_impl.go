@@ -6,19 +6,21 @@ import (
 	"errors"
 	"golang-category-management/helper"
 	"golang-category-management/model/entity"
+	"golang-category-management/repository"
 )
 
 type CategoryRepositoryImpl struct {
 }
 
-func (c *CategoryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, category entity.Category) entity.Category {
-	sql := "INSERT INTO categories (name) VALUES (?)"
+func NewCategoryRepository() repository.CategoryRepository {
+	return &CategoryRepositoryImpl{}
+}
 
-	result, err := tx.ExecContext(ctx, sql, category.Name)
-	helper.HelperPanic(err)
+func (c *CategoryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, category entity.Category) entity.Category {
+	sql := "INSERT INTO categories (name) VALUES ($1) RETURNING id"
 
 	var id int64
-	id, err = result.LastInsertId()
+	err := tx.QueryRowContext(ctx, sql, category.Name).Scan(&id)
 	helper.HelperPanic(err)
 
 	category.Id = int(id)
