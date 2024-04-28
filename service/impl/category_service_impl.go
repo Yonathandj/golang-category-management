@@ -29,6 +29,7 @@ func NewCategoryService(database *sql.DB, validator *validator.Validate, categor
 
 func (c *CategoryServiceImpl) Create(ctx context.Context, request request.CategoryCreateRequest) response.CategoryResponse {
 	tx, err := c.Database.Begin()
+	defer helper.CommitOrRollback(tx)
 
 	helper.HelperPanic(err)
 
@@ -39,7 +40,6 @@ func (c *CategoryServiceImpl) Create(ctx context.Context, request request.Catego
 		Name: request.Name,
 	}
 	category = c.CategoryRepository.Save(ctx, tx, category)
-	defer helper.CommitOrRollback(tx)
 
 	return helper.ToCategoryResponse(category)
 }

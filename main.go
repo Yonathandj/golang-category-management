@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"golang-category-management/config"
 	impl3 "golang-category-management/controller/impl"
+	"golang-category-management/exception"
 	"golang-category-management/helper"
 	"golang-category-management/repository/impl"
 	impl2 "golang-category-management/service/impl"
@@ -32,6 +33,7 @@ func main() {
 	categoryController := impl3.NewCategoryController(categoryService)
 
 	r := httprouter.New()
+	r.PanicHandler = exception.ExceptionHandler
 
 	r.GET("/categories", categoryController.FindAll)
 	r.GET("/categories/:id", categoryController.FindById)

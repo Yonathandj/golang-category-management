@@ -4,6 +4,7 @@ import (
 	"golang-category-management/controller"
 	"golang-category-management/helper"
 	request2 "golang-category-management/model/request"
+	"golang-category-management/model/response"
 	"golang-category-management/service"
 	"net/http"
 	"strconv"
@@ -26,7 +27,13 @@ func (c *CategoryControllerImpl) Create(writer http.ResponseWriter, request *htt
 	helper.DecodeJSONBody(request, &categoryRequest)
 
 	categoryResponse := c.CategoryService.Create(request.Context(), categoryRequest)
-	helper.EncodeJSONBody(writer, categoryResponse)
+	standardResponse := response.StandardResponse{
+		StatusCode: http.StatusCreated,
+		Message:    "Successfully create new category",
+		Data:       categoryResponse,
+	}
+
+	helper.EncodeJSONBody(writer, standardResponse)
 }
 
 func (c *CategoryControllerImpl) Update(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
@@ -34,7 +41,13 @@ func (c *CategoryControllerImpl) Update(writer http.ResponseWriter, request *htt
 	helper.DecodeJSONBody(request, &categoryRequest)
 
 	categoryResponse := c.CategoryService.Update(request.Context(), categoryRequest)
-	helper.EncodeJSONBody(writer, categoryResponse)
+	standardResponse := response.StandardResponse{
+		StatusCode: http.StatusOK,
+		Message:    "Successfully update category",
+		Data:       categoryResponse,
+	}
+
+	helper.EncodeJSONBody(writer, standardResponse)
 }
 
 func (c *CategoryControllerImpl) Delete(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
@@ -44,7 +57,13 @@ func (c *CategoryControllerImpl) Delete(writer http.ResponseWriter, request *htt
 	helper.HelperPanic(err)
 
 	c.CategoryService.Delete(request.Context(), categoryId)
-	helper.EncodeJSONBody(writer, map[string]string{"message": "successfully deleted category " + id})
+	standardResponse := response.StandardResponse{
+		StatusCode: http.StatusOK,
+		Message:    "Successfully delete category",
+		Data:       nil,
+	}
+
+	helper.EncodeJSONBody(writer, standardResponse)
 }
 
 func (c *CategoryControllerImpl) FindById(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
@@ -54,10 +73,22 @@ func (c *CategoryControllerImpl) FindById(writer http.ResponseWriter, request *h
 	helper.HelperPanic(err)
 
 	category := c.CategoryService.FindById(request.Context(), categoryId)
-	helper.EncodeJSONBody(writer, category)
+	standardResponse := response.StandardResponse{
+		StatusCode: http.StatusOK,
+		Message:    "Successfully find id category",
+		Data:       category,
+	}
+
+	helper.EncodeJSONBody(writer, standardResponse)
 }
 
 func (c *CategoryControllerImpl) FindAll(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	categoryResponses := c.CategoryService.FindAll(request.Context())
-	helper.EncodeJSONBody(writer, categoryResponses)
+	standardResponse := response.StandardResponse{
+		StatusCode: http.StatusOK,
+		Message:    "Successfully find all category",
+		Data:       categoryResponses,
+	}
+
+	helper.EncodeJSONBody(writer, standardResponse)
 }
