@@ -11,7 +11,7 @@ import (
 type CategoryRepositoryImpl struct {
 }
 
-func (c CategoryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, category entity.Category) entity.Category {
+func (c *CategoryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, category entity.Category) entity.Category {
 	sql := "INSERT INTO categories (name) VALUES (?)"
 
 	result, err := tx.ExecContext(ctx, sql, category.Name)
@@ -25,7 +25,7 @@ func (c CategoryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, category e
 	return category
 }
 
-func (c CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, categoryId int) entity.Category {
+func (c *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, categoryId int) entity.Category {
 	sql := "SELECT id, name FROM categories WHERE id= ?"
 	category := entity.Category{}
 
@@ -35,7 +35,7 @@ func (c CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, catego
 	return category
 }
 
-func (c CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []entity.Category {
+func (c *CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []entity.Category {
 	sql := "SELECT id, name FROM categories"
 
 	rows, err := tx.QueryContext(ctx, sql)
@@ -55,7 +55,7 @@ func (c CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []entit
 	return categories
 }
 
-func (c CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, category entity.Category) entity.Category {
+func (c *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, category entity.Category) entity.Category {
 	sql := "UPDATE categories SET name = ? WHERE id = ?"
 
 	foundedCategory := c.FindById(ctx, tx, category.Id)
@@ -69,7 +69,7 @@ func (c CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, category
 	return category
 }
 
-func (c CategoryRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, categoryId int) {
+func (c *CategoryRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, categoryId int) {
 	sql := "DELETE FROM categories WHERE id = ?"
 
 	foundedCategory := c.FindById(ctx, tx, categoryId)
