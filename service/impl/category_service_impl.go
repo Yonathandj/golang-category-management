@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"database/sql"
+	"golang-category-management/exception"
 	"golang-category-management/helper"
 	"golang-category-management/model/entity"
 	"golang-category-management/model/request"
@@ -48,10 +49,11 @@ func (c *CategoryServiceImpl) FindById(ctx context.Context, categoryId int) resp
 	defer helper.CommitOrRollback(tx)
 	helper.HelperPanic(err)
 
-	if categoryId == 0 {
-		helper.HelperPanic(err)
+	category, err := c.CategoryRepository.FindById(ctx, tx, categoryId)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
 	}
-	category := c.CategoryRepository.FindById(ctx, tx, categoryId)
+
 	return helper.ToCategoryResponse(category)
 }
 
@@ -68,6 +70,11 @@ func (c *CategoryServiceImpl) Update(ctx context.Context, request request.Catego
 	tx, err := c.Database.Begin()
 	defer helper.CommitOrRollback(tx)
 	helper.HelperPanic(err)
+
+	_, err = c.CategoryRepository.FindById(ctx, tx, request.Id)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
 
 	err = c.Validator.Struct(request)
 	helper.HelperPanic(err)
@@ -86,8 +93,10 @@ func (c *CategoryServiceImpl) Delete(ctx context.Context, categoryId int) {
 	defer helper.CommitOrRollback(tx)
 	helper.HelperPanic(err)
 
-	if categoryId == 0 {
-		helper.HelperPanic(err)
+	_, err = c.CategoryRepository.FindById(ctx, tx, categoryId)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
 	}
+
 	c.CategoryRepository.Delete(ctx, tx, categoryId)
 }

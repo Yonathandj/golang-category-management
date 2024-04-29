@@ -1,9 +1,10 @@
 package app
 
 import (
-	"github.com/julienschmidt/httprouter"
 	"golang-category-management/controller"
 	"golang-category-management/exception"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 func Router(categoryController controller.CategoryController) *httprouter.Router {
@@ -15,7 +16,7 @@ func Router(categoryController controller.CategoryController) *httprouter.Router
 	r.PUT("/categories", categoryController.Update)
 	r.DELETE("/categories/:id", categoryController.Delete)
 
-	r.PanicHandler = exception.ExceptionHandler
+	r.PanicHandler = exception.ErrorHandler
 
 	return r
 }

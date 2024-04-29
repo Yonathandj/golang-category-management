@@ -27,14 +27,25 @@ func (c *CategoryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, category 
 	return category
 }
 
-func (c *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, categoryId int) entity.Category {
+func (c *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, categoryId int) (entity.Category, error) {
 	sql := "SELECT id, name FROM categories WHERE id= $1"
-	category := entity.Category{}
 
-	err := tx.QueryRowContext(ctx, sql, categoryId).Scan(&category.Id, &category.Name)
+	rows, err := tx.QueryContext(ctx, sql, categoryId)
+	defer func() {
+		err := rows.Close()
+		helper.HelperPanic(err)
+	}()
 	helper.HelperPanic(err)
 
-	return category
+	var category entity.Category
+	if rows.Next() {
+		err = rows.Scan(&category.Id, &category.Name)
+		helper.HelperPanic(err)
+
+		return category, nil
+	} else {
+		return category, errors.New("category not found")
+	}
 }
 
 func (c *CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []entity.Category {
@@ -59,12 +70,7 @@ func (c *CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []enti
 
 func (c *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, category entity.Category) entity.Category {
 	sql := "UPDATE categories SET name = $1 WHERE id = $2"
-
-	foundedCategory := c.FindById(ctx, tx, category.Id)
-	if foundedCategory.Id == 0 && foundedCategory.Name == "" {
-		helper.HelperPanic(errors.New("category not found"))
-	}
-
+	
 	_, err := tx.ExecContext(ctx, sql, category.Name, category.Id)
 	helper.HelperPanic(err)
 
@@ -73,11 +79,6 @@ func (c *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, categor
 
 func (c *CategoryRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, categoryId int) {
 	sql := "DELETE FROM categories WHERE id = $1"
-
-	foundedCategory := c.FindById(ctx, tx, categoryId)
-	if foundedCategory.Id == 0 && foundedCategory.Name == "" {
-		helper.HelperPanic(errors.New("category not found"))
-	}
 
 	_, err := tx.ExecContext(ctx, sql, categoryId)
 	helper.HelperPanic(err)
