@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"golang-category-management/app"
 	"golang-category-management/config"
-	impl3 "golang-category-management/controller/impl"
+	controller "golang-category-management/controller/impl"
 	"golang-category-management/helper"
-	"golang-category-management/repository/impl"
-	impl2 "golang-category-management/service/impl"
+	repository "golang-category-management/repository/impl"
+	service "golang-category-management/service/impl"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -20,16 +20,16 @@ func main() {
 		}
 	}()
 
-	db := config.DatabaseConnection()
+	newDatabase := config.DatabaseConnection()
 	newValidator := validator.New()
 	defer func() {
-		err := db.Close()
+		err := newDatabase.Close()
 		helper.HelperPanic(err)
 	}()
 
-	categoryRepository := impl.NewCategoryRepository()
-	categoryService := impl2.NewCategoryService(db, newValidator, categoryRepository)
-	categoryController := impl3.NewCategoryController(categoryService)
+	categoryRepository := repository.NewCategoryRepository()
+	categoryService := service.NewCategoryService(newDatabase, newValidator, categoryRepository)
+	categoryController := controller.NewCategoryController(categoryService)
 
 	r := app.Router(categoryController)
 	server := http.Server{
